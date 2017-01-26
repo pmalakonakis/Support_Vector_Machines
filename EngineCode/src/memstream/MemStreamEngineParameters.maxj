@@ -1,0 +1,10 @@
+package memstream;
+
+import com.maxeler.maxcompiler.v2.build.EngineParameters;
+
+public class MemStreamEngineParameters extends EngineParameters {
+
+	public MemStreamEngineParameters(String[] args) {
+		super(args);
+	}
+}

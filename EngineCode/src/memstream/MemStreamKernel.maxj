@@ -1,0 +1,154 @@
+
+package memstream;
+
+import com.maxeler.maxcompiler.v2.kernelcompiler.Kernel;
+import com.maxeler.maxcompiler.v2.kernelcompiler.KernelParameters;
+import com.maxeler.maxcompiler.v2.kernelcompiler.stdlib.core.Count.Counter;
+import com.maxeler.maxcompiler.v2.kernelcompiler.stdlib.core.Count.Params;
+import com.maxeler.maxcompiler.v2.kernelcompiler.stdlib.core.CounterChain;
+import com.maxeler.maxcompiler.v2.kernelcompiler.stdlib.core.Stream.OffsetExpr;
+import com.maxeler.maxcompiler.v2.kernelcompiler.types.base.DFEType;
+import com.maxeler.maxcompiler.v2.kernelcompiler.types.base.DFEVar;
+import com.maxeler.maxcompiler.v2.utils.MathUtils;
+
+
+
+class MemStreamKernel extends Kernel {
+
+	private static final DFEType type = dfeFloat(11,53); //double precision
+
+	MemStreamKernel(KernelParameters parameters, int X) {
+		super(parameters);
+
+		OffsetExpr loopLength = stream.makeOffsetAutoLoop("loopLength");
+		DFEVar loopLengthVal = loopLength.getDFEVar(this, dfeUInt(8));
+		CounterChain chain = control.count.makeCounterChain();
+		DFEVar x = chain.addCounter(X, 1);
+		DFEVar loopCounter = chain.addCounter(loopLengthVal, 1);
+
+		int countBits = MathUtils.bitsToAddress((5000*14+13)+14); 
+		Params counterParam = control.count.makeParams(countBits)
+		.withMax((5000*14+13)+14) 
+		.withInc(1) // advanced counter's behavior
+		.withWrapValue(27); // 27
+
+		Counter countCount = control.count.makeCounter(counterParam);
+		DFEVar count = countCount.getCount();
+
+		int helpCount = MathUtils.bitsToAddress(1000000); /
+		Params helpParm = control.count.makeParams(helpCount).withMax(1000000);
+		Counter helpCounter = control.count.makeCounter(helpParm);
+		DFEVar helpc = helpCounter.getCount();
+		// Input
+		DFEVar instance = io.input("i_instance",type);
+		DFEVar input1 = io.input("input1", type);
+		DFEVar input2 = io.input("input2", type);
+		DFEVar input3 = io.input("input3", type);
+		DFEVar input4 = io.input("input4", type);
+		DFEVar input5 = io.input("input5", type);
+		DFEVar input6 = io.input("input6", type);
+		DFEVar input7 = io.input("input7", type);
+
+		// The loop body itself
+		// At the head of the loop, we select whether to take the initial value,
+		// or the value that is being carried around the loop cycle
+		DFEVar carriedSum1_1 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum1_2 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum1_3 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum1_4 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum1_5 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum1_6 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum1_7 = type.newInstance(this); // sourceless stream
+
+		DFEVar carriedSum2_1 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum2_2 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum2_3 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum2_4 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum2_5 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum2_6 = type.newInstance(this); // sourceless stream
+		DFEVar carriedSum2_7 = type.newInstance(this); // sourceless stream
+
+		DFEVar sum1_1 = x === 0 ? 0.0 : carriedSum1_1;
+		DFEVar sum1_2 = x === 0 ? 0.0 : carriedSum1_2;
+		DFEVar sum1_3 = x === 0 ? 0.0 : carriedSum1_3;
+		DFEVar sum1_4 = x === 0 ? 0.0 : carriedSum1_4;
+		DFEVar sum1_5 = x === 0 ? 0.0 : carriedSum1_5;
+		DFEVar sum1_6 = x === 0 ? 0.0 : carriedSum1_6;
+		DFEVar sum1_7 = x === 0 ? 0.0 : carriedSum1_7;
+
+		DFEVar sum2_1 = x === 0 ? 0.0 : carriedSum2_1;
+		DFEVar sum2_2 = x === 0 ? 0.0 : carriedSum2_2;
+		DFEVar sum2_3 = x === 0 ? 0.0 : carriedSum2_3;
+		DFEVar sum2_4 = x === 0 ? 0.0 : carriedSum2_4;
+		DFEVar sum2_5 = x === 0 ? 0.0 : carriedSum2_5;
+		DFEVar sum2_6 = x === 0 ? 0.0 : carriedSum2_6;
+		DFEVar sum2_7 = x === 0 ? 0.0 : carriedSum2_7;
+
+		DFEVar newSum1_1 = instance*input1 + sum1_1;
+		DFEVar newSum1_2 = instance*input2 + sum1_2;
+		DFEVar newSum1_3 = instance*input3 + sum1_3;
+		DFEVar newSum1_4 = instance*input4 + sum1_4;
+		DFEVar newSum1_5 = instance*input5 + sum1_5;
+		DFEVar newSum1_6 = instance*input6 + sum1_6;
+		DFEVar newSum1_7 = instance*input7 + sum1_7;
+
+		DFEVar newSum2_1 = (input1*input1 + sum2_1);
+		DFEVar newSum2_2 = (input2*input2 + sum2_2);
+		DFEVar newSum2_3 = (input3*input3 + sum2_3);
+		DFEVar newSum2_4 = (input4*input4 + sum2_4);
+		DFEVar newSum2_5 = (input5*input5 + sum2_5);
+		DFEVar newSum2_6 = (input6*input6 + sum2_6);
+		DFEVar newSum2_7 = (input7*input7 + sum2_7);
+
+		DFEVar output1 = newSum2_1 - 2*newSum1_1;
+		DFEVar output2 = newSum2_2 - 2*newSum1_2;
+		DFEVar output3 = newSum2_3 - 2*newSum1_3;
+		DFEVar output4 = newSum2_4 - 2*newSum1_4;
+		DFEVar output5 = newSum2_5 - 2*newSum1_5;
+		DFEVar output6 = newSum2_6 - 2*newSum1_6;
+		DFEVar output7 = newSum2_7 - 2*newSum1_7;
+
+		DFEVar newSumOffset1_1 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 :stream.offset(newSum1_1, -loopLength);
+		DFEVar newSumOffset1_2 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 : stream.offset(newSum1_2, -loopLength);
+		DFEVar newSumOffset1_3 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 :stream.offset(newSum1_3, -loopLength);
+		DFEVar newSumOffset1_4 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 : stream.offset(newSum1_4, -loopLength);
+		DFEVar newSumOffset1_5 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 : stream.offset(newSum1_5, -loopLength);
+		DFEVar newSumOffset1_6 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 : stream.offset(newSum1_6, -loopLength);
+		DFEVar newSumOffset1_7 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 : stream.offset(newSum1_7, -loopLength);
+
+		DFEVar newSumOffset2_1 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 : stream.offset(newSum2_1, -loopLength);
+		DFEVar newSumOffset2_2 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 : stream.offset(newSum2_2, -loopLength);
+		DFEVar newSumOffset2_3 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 :stream.offset(newSum2_3, -loopLength);
+		DFEVar newSumOffset2_4 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 : stream.offset(newSum2_4, -loopLength);
+		DFEVar newSumOffset2_5 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 : stream.offset(newSum2_5, -loopLength);
+		DFEVar newSumOffset2_6 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 : stream.offset(newSum2_6, -loopLength);
+		DFEVar newSumOffset2_7 = (count >= 5000*14 & count <=5000*14+13) ? 0.0 : stream.offset(newSum2_7, -loopLength);
+
+		// At the foot of the loop, we add the backward edge
+		carriedSum1_1 <== newSumOffset1_1;
+		carriedSum1_2 <== newSumOffset1_2;
+		carriedSum1_3 <== newSumOffset1_3;
+		carriedSum1_4 <== newSumOffset1_4;
+		carriedSum1_5 <== newSumOffset1_5;
+		carriedSum1_6 <== newSumOffset1_6;
+		carriedSum1_7 <== newSumOffset1_7;
+
+		carriedSum2_1 <== newSumOffset2_1;
+		carriedSum2_2 <== newSumOffset2_2;
+		carriedSum2_3 <== newSumOffset2_3;
+		carriedSum2_4 <== newSumOffset2_4;
+		carriedSum2_5 <== newSumOffset2_5;
+		carriedSum2_6 <== newSumOffset2_6;
+		carriedSum2_7 <== newSumOffset2_7;
+
+		io.output("output1", output1, type); // loopCounter === (loopLengthVal-1)
+		io.output("output2", output2, type);
+		io.output("output3", output3, type);
+		io.output("output4", output4, type);
+		io.output("output5", output5, type);
+		io.output("output6", output6, type);
+		io.output("output7", output7, type);
+	}
+
+
+}

@@ -1,0 +1,75 @@
+package memstream;
+
+import static com.maxeler.maxcompiler.v2.managers.standard.Manager.link;
+
+import com.maxeler.maxcompiler.v2.build.EngineParameters;
+import com.maxeler.maxcompiler.v2.kernelcompiler.Kernel;
+import com.maxeler.maxcompiler.v2.managers.engine_interfaces.CPUTypes;
+import com.maxeler.maxcompiler.v2.managers.engine_interfaces.EngineInterface;
+import com.maxeler.maxcompiler.v2.managers.engine_interfaces.EngineInterface.Direction;
+import com.maxeler.maxcompiler.v2.managers.engine_interfaces.InterfaceParam;
+import com.maxeler.maxcompiler.v2.managers.standard.IOLink.IODestination;
+import com.maxeler.maxcompiler.v2.managers.standard.Manager;
+
+class MemStreamManager {
+	private static final CPUTypes TYPE = CPUTypes.INT;
+	private static final String KERNEL_NAME = "MemStreamKernel";
+	private static final int X = 4340352; // image row length (number of columns)
+	public static void main(String[] args) {
+		Manager m = new Manager(new EngineParameters(args));
+		Kernel k = new MemStreamKernel(m.makeKernelParameters(),X);
+		m.setKernel(k);
+
+		m.setIO(link("input1", IODestination.LMEM_LINEAR_1D),
+				link("input2", IODestination.LMEM_LINEAR_1D),
+				link("input3", IODestination.LMEM_LINEAR_1D),
+				link("input4", IODestination.LMEM_LINEAR_1D),
+				link("input5", IODestination.LMEM_LINEAR_1D),
+				link("input6", IODestination.LMEM_LINEAR_1D),
+				link("input7", IODestination.LMEM_LINEAR_1D),
+				link("i_instance", IODestination.CPU),
+				link("output1", IODestination.CPU),
+				link("output2", IODestination.CPU),
+				link("output3", IODestination.CPU),
+				link("output4",IODestination.CPU),
+				link("output5", IODestination.CPU),
+				link("output6", IODestination.CPU),
+				link("output7", IODestination.CPU));
+
+		m.createSLiCinterface(interfaceDefault());
+		m.build();
+	}
+
+	private static EngineInterface interfaceDefault() {
+		EngineInterface ei = new EngineInterface();
+
+		InterfaceParam N    = ei.addParam("N", TYPE);
+
+		InterfaceParam zero = ei.addConstant(0l);
+
+		ei.setTicks(KERNEL_NAME, N);
+		InterfaceParam sizeInBytes =  N*CPUTypes.DOUBLE.sizeInBytes();
+
+		ei.setLMemLinear("input1", zero, sizeInBytes);
+		ei.setLMemLinear("input2", sizeInBytes, sizeInBytes);
+		ei.setLMemLinear("input3", 2*sizeInBytes, sizeInBytes);
+		ei.setLMemLinear("input4", 3*sizeInBytes, sizeInBytes);
+		ei.setLMemLinear("input5", 4*sizeInBytes, sizeInBytes);
+		ei.setLMemLinear("input6", 5*sizeInBytes, sizeInBytes);
+		ei.setLMemLinear("input7", 6*sizeInBytes, sizeInBytes);
+
+		ei.setStream("i_instance",CPUTypes.DOUBLE,(sizeInBytes));
+
+		ei.setStream("output1", CPUTypes.DOUBLE, (sizeInBytes));
+		ei.setStream("output2", CPUTypes.DOUBLE, (sizeInBytes));
+		ei.setStream("output3", CPUTypes.DOUBLE, (sizeInBytes));
+		ei.setStream("output4", CPUTypes.DOUBLE, (sizeInBytes));
+		ei.setStream("output5", CPUTypes.DOUBLE, (sizeInBytes));
+		ei.setStream("output6", CPUTypes.DOUBLE, (sizeInBytes));
+		ei.setStream("output7", CPUTypes.DOUBLE, (sizeInBytes));
+
+		ei.ignoreAll(Direction.IN_OUT);
+		return ei;
+	}
+
+}
